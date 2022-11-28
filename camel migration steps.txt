@@ -1,0 +1,72 @@
+Migrating the development environment
+Step 1: Upgrading the development environment
+Follow Upgrade documentation up until the verification as data integration needs to be updated
+
+Step 2: Update libraries
+All previous Apache Camel libraries won't work, other libraries (such as drivers) will still work.
+
+Managed libraries
+Manual libraries
+Update the libraries jar files of all libraries, retrieving them the way you usually do. You can also recreate them as managed libraries, they can be easily installed and updated on the development environment and are included inside appx files exactly like manual libraries so they behave like any other library on the production environment.
+
+ 
+Notable library changes
+
+camel-http now uses HTTPClient 4 instead of HTTPClient 3, camel-http4 is deleted
+
+camel-jetty	camel-jetty9 is renamed camel-jetty
+it's no longer possible to write <to uri="jetty:http://my-server" /> you should use camel-http instead
+camel-netty	 now uses Netty 4 instead of Netty 3 ,camel-netty4 is deleted
+camel-quartz now uses Quartz 2 instead of Quartz 1 ,camel-quartz2 is deleted
+no longer need to write quartz2:// but simply quartz://
+camel-restlet is deleted,it's no longer possible to write <to uri="restlet:..." /> you should use camel-http instead
+ 
+camel-stream	no longer possible to use it to load an URL, you should use camel-http instead
+
+Step 3: Update connectors
+Once the libraries are updated, the connectors need to be refreshed.
+
+SSL configuration package (automatic migration)
+The package of SSL configuration objects has changed from org.apache.camel.util.jsse to org.apache.camel.support.jsse 
+
+(info) This change is done automatically during the upgrade process.
+
+TLS support update
+For security reasons, SSL configurations only support TLSv1.2. To enable all TLS versions, configure the secureSocketPrototolsList attribute on your SSL configuration object to "TLSv1.2,TLSv1.1,TLSv1"
+
+
+Step 4: Update routes
+The routes are mostly automatically updated, few migrations cannot be performed automatically.
+
+We'll first present the 2 manual migrations (but uncommon use-cases) then the automatic migrations.
+
+Manual migration: <threads> is used differently
+Manual migration: Simple no longer able to call clone method
+Manual migration: Registry method changes
+Automatic migration: Single "from" input
+Automatic migration: Set header/property notation
+migration: HTTP component URI
+migration: Simple parsing update
+ In Apache Camel 2.x it was possible to write "simple" expressions variables without the ${} notation, it was deprecated and discouraged but was possible. It's no longer the case you have to surround your variable with the ${} notation.
+ 
+ Automatic migration: Simple property function
+ In Apache Camel 2.x it was possible to write "simple" expressions to access exchange properties with the ${property[name]} notation, it was deprecated and discouraged but was possible. It's no longer the case you have to access your exchange properties with the ${exchangeProperty[name]} notation.
+ 
+ Automatic migration: Simple and/or operators
+In Apache Camel 2.x it was possible to write "simple" expressions with "and" and "or" operator. Now it's only possible to use "&&" (escaped "&amp;&amp;") and "||"
+
+Automatic migration: Custom marshal/unmarshal
+When using a data format defined in connectors you have to use the <custom /> generic data format
+
+Automatic migration: Zipfile data format name change
+The zipFile data format is now named zipfile with a lowercase "f".
+
+Automatic migration: Context global options
+It was possible to configure options at the Apache Camel context level and was misleading named properties, it's now named global options.
+
+Automatic migration: Method call language connector
+It was possible to configure the connector of a method tag using the bean attribute (which was deprecated), now only ref is supported (same behavior than before).
+
+Step 5: Restart, validate and export
+Restart the node
+ Verify that everything is working
